@@ -54,6 +54,7 @@ def start_screen():
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
