@@ -41,20 +41,15 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
 
 
-
-size = width, height = 800, 800
+size = width, height = 1024, 401
 screen = pygame.display.set_mode(size)
-pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
 pygame.display.flip()
-running = True
 image = pygame.Surface([100, 100])
-all_sprites = pygame.sprite.Group()
 
-dragon = AnimatedSprite(load_image("2D Toon Bear Sprite Sheet.png"), 8, 8, 50, 50)
+dragon = AnimatedSprite(load_image("Jumping sack_Walk.png"), 6, 4 , 50, 50)
 
 clock = pygame.time.Clock()
 v = 0.2
-clock = pygame.time.Clock()
 all_sprites.draw(screen)
 all_sprites.update()
 pygame.display.update()
