@@ -57,26 +57,55 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 
 size = width, height = 1024, 401
+
 screen = pygame.display.set_mode(size)
+pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+
 pygame.display.flip()
 image = pygame.Surface([100, 100])
 
 bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
 
+bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
+
+bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
+
 clock = pygame.time.Clock()
 v = 0.2
 all_sprites.draw(screen)
-all_sprites.update()
 pygame.display.update()
 running = True
+evtype = 0
+evkey = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    dragon.update()
-    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                for i in range(51 - 42):
+                    bear_jump.update()
+                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    all_sprites.draw(screen)
+                    clock.tick(10)
+                    pygame.display.update()
+            if event.key == pygame.K_q:
+                for i in range(31 - 23):
+                    bear_hit.update()
+                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    all_sprites.draw(screen)
+                    clock.tick(10)
+                    pygame.display.update()
+            evtype = event.type
+            evkey = event.key
+        if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
+            evtype = 0
+            evkey = 0
+    while evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
+        bear_run.update()
+        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+        all_sprites.draw(screen)
+        clock.tick(10)
+        pygame.display.update()
 
-    all_sprites.draw(screen)
-    clock.tick(10)
-    pygame.display.update()
 pygame.quit()
