@@ -79,6 +79,32 @@ evtype = 0
 x = 50
 evkey = 0
 while running:
+    while evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
+                evtype = 0
+                evkey = 0
+                pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                screen.blit(bear.image, bear.rect)
+                pygame.display.update()
+                is_running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key != pygame.K_RIGHT:
+                    is_running = False
+                    break
+            if event.type == pygame.KEYDOWN:
+                is_running = False
+                break
+        if not is_running:
+            break
+        for i in range(22 - 10):
+            bear_run.update()
+            pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+            screen.blit(bear_run.image, bear_run.rect)
+            clock.tick(15)
+            pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -109,18 +135,13 @@ while running:
         if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
             evtype = 0
             evkey = 0
-    while evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
-                evtype = 0
-                evkey = 0
+            pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+            screen.blit(bear.image, bear.rect)
+            pygame.display.update()
+            is_running = False
+        if evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
+            is_running = True
 
-            for i in range(22 - 10):
-                bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, x, 50, 10 + i, 22)
-                x += 1
-                pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
-                screen.blit(bear_run.image, bear_run.rect)
-                clock.tick(10)
-                pygame.display.update()
+
 
 pygame.quit()
