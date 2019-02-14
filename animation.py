@@ -15,6 +15,7 @@ pygame.display.update()
 running = True
 is_running = False
 x = 50
+
 all_sprites = pygame.sprite.Group()
 
 
@@ -111,6 +112,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
 class Monster(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y, k1=-1, k2=-1, is_moving=False, v=5):
         self.frames = []
+        self.hp = 50
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
@@ -143,21 +145,76 @@ class Monster(AnimatedSprite):
             self.rect[0] -= self.v
 
 
+class Bear:
+    def __init__(self):
+        self.hp = 100
+        self.bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50)
+        self.bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
+        self.bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
+        self.bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
+        print(self.bear)
+
+    def run(self):
+        global running
+        for i in range(22 - 10):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        meathead.jump()
+                    if event.key == pygame.K_q:
+                        meathead.hit()
+
+            self.bear_run.update()
+            screen.blit(fon, (0, 0, width, height))
+
+            screen.blit(self.bear_run.image, self.bear_run.rect)
+            clock.tick(15)
+            pygame.display.update()
+
+    def jump(self):
+        for i in range(51 - 42):
+            screen.blit(fon, (0, 0, width, height))
+            screen.blit(self.bear_jump.image, self.bear_jump.rect)
+            self.bear_jump.update()
+            clock.tick(10)
+            pygame.display.update()
+        screen.blit(fon, (0, 0, width, height))
+        screen.blit(self.bear.image, self.bear.rect)
+        pygame.display.update()
+
+    def hit(self):
+        for i in range(31 - 23):
+            screen.blit(fon, (0, 0, width, height))
+            screen.blit(self.bear_hit.image, self.bear_hit.rect)
+            self.bear_hit.update()
+            clock.tick(15)
+            pygame.display.update()
+        screen.blit(fon, (0, 0, width, height))
+        screen.blit(self.bear.image, self.bear.rect)
+        pygame.display.update()
+
+
+class Mon(Monster):
+    def update(self):
+        if bear.rect:
+            pass
+
+
+class Flying(Monster):
+    def update(self):
+        pass
+
+
 fon = load_image('fon.jpg')
+
+meathead = Bear()
 
 camera = Camera()
 
-bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50)
+screen.blit(fon, (0, 0, width, height))
 
-screen.blit(bear.image, bear.rect)
-
-screen.blit(fon, (0, 0, 1024, 401))
-
-bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
-
-bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
-
-bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
 
 mon = Monster(load_image("monster_1.png"), 8, 3, 1024, 50, is_moving=True)
 
@@ -174,55 +231,9 @@ while running:
             keys = pygame.key.get_pressed()
 
             if event.key == pygame.K_UP:
-                for i in range(51 - 42):
-                    screen.blit(fon, (0, 0, 1024, 401))
-                    screen.blit(bear_jump.image, bear_jump.rect)
-                    bear_jump.update()
-                    clock.tick(10)
-                    pygame.display.update()
-                screen.blit(fon, (0, 0, 1024, 401))
-                screen.blit(bear.image, bear.rect)
-                pygame.display.update()
+                meathead.jump()
 
             if event.key == pygame.K_q:
-                for i in range(31 - 23):
-                    screen.blit(fon, (0, 0, 1024, 401))
-                    screen.blit(bear_hit.image, bear_hit.rect)
-                    bear_hit.update()
-                    clock.tick(15)
-                    pygame.display.update()
-                screen.blit(fon, (0, 0, 1024, 401))
-                screen.blit(bear.image, bear.rect)
-                pygame.display.update()
-    for i in range(22 - 10):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    for i in range(51 - 42):
-                        screen.blit(fon, (0, 0, 1024, 401))
-                        screen.blit(bear_jump.image, bear_jump.rect)
-                        bear_jump.update()
-                        clock.tick(10)
-                        pygame.display.update()
-                    screen.blit(fon, (0, 0, 1024, 401))
-                    screen.blit(bear.image, bear.rect)
-                    pygame.display.update()
-                if event.key == pygame.K_q:
-                    for i in range(31 - 23):
-                        screen.blit(fon, (0, 0, 1024, 401))
-                        screen.blit(bear_hit.image, bear_hit.rect)
-                        bear_hit.update()
-                        clock.tick(15)
-                        pygame.display.update()
-                    screen.blit(fon, (0, 0, 1024, 401))
-                    screen.blit(bear.image, bear.rect)
-                    pygame.display.update()
-
-        bear_run.update()
-        screen.blit(fon, (0, 0, 1024, 401))
-        screen.blit(bear_run.image, bear_run.rect)
-        clock.tick(15)
-        pygame.display.update()
+                meathead.hit()
+    meathead.run()
 pygame.quit()
