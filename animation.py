@@ -1,6 +1,6 @@
 import pygame
 import random
-from pygame import draw
+import sys
 import os
 
 pygame.init()
@@ -108,17 +108,60 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.image = self.frames[self.cur_frame + self.k1]
 
 
+class Monster(AnimatedSprite):
+    def __init__(self, sheet, columns, rows, x, y, k1=-1, k2=-1, is_moving=False, v=5):
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
+        self.k1 = k1
+
+        self.v = v
+        self.is_moving = is_moving
+        self.k2 = k2
+        if self.k1 != -1 and (self.k2 != -1):
+            self.r = self.k2 - self.k1
+        else:
+            self.r = 0
+        if self.k1 == -1:
+            self.k1 = 0
+        if self.k2 == -1:
+            self.k2 = x * y - 1
+
+    def update(self):
+        if self.r == 0:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+
+            self.image = self.frames[self.cur_frame]
+
+        else:
+            self.cur_frame = (self.cur_frame + 1) % self.r
+
+            self.image = self.frames[self.cur_frame + self.k1]
+        if self.is_moving:
+            self.rect[0] -= self.v
+
+
+fon = load_image('fon.jpg')
+
 camera = Camera()
 
 bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50)
 
 screen.blit(bear.image, bear.rect)
 
+screen.blit(fon, (0, 0, 1024, 401))
+
 bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
 
 bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
 
 bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
+
+mon = Monster(load_image("monster_1.png"), 8, 3, 1024, 50, is_moving=True)
+
+f_mon = Monster(load_image("flying_monster.png"), 4, 3, 1024, 200, is_moving=True, v=10)
 
 pygame.display.flip()
 
@@ -132,23 +175,23 @@ while running:
 
             if event.key == pygame.K_UP:
                 for i in range(51 - 42):
-                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(fon, (0, 0, 1024, 401))
                     screen.blit(bear_jump.image, bear_jump.rect)
                     bear_jump.update()
                     clock.tick(10)
                     pygame.display.update()
-                pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                screen.blit(fon, (0, 0, 1024, 401))
                 screen.blit(bear.image, bear.rect)
                 pygame.display.update()
 
             if event.key == pygame.K_q:
                 for i in range(31 - 23):
-                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(fon, (0, 0, 1024, 401))
                     screen.blit(bear_hit.image, bear_hit.rect)
                     bear_hit.update()
                     clock.tick(15)
                     pygame.display.update()
-                pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                screen.blit(fon, (0, 0, 1024, 401))
                 screen.blit(bear.image, bear.rect)
                 pygame.display.update()
     for i in range(22 - 10):
@@ -158,27 +201,27 @@ while running:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     for i in range(51 - 42):
-                        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                        screen.blit(fon, (0, 0, 1024, 401))
                         screen.blit(bear_jump.image, bear_jump.rect)
                         bear_jump.update()
                         clock.tick(10)
                         pygame.display.update()
-                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(fon, (0, 0, 1024, 401))
                     screen.blit(bear.image, bear.rect)
                     pygame.display.update()
                 if event.key == pygame.K_q:
                     for i in range(31 - 23):
-                        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                        screen.blit(fon, (0, 0, 1024, 401))
                         screen.blit(bear_hit.image, bear_hit.rect)
                         bear_hit.update()
                         clock.tick(15)
                         pygame.display.update()
-                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(fon, (0, 0, 1024, 401))
                     screen.blit(bear.image, bear.rect)
                     pygame.display.update()
 
         bear_run.update()
-        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+        screen.blit(fon, (0, 0, 1024, 401))
         screen.blit(bear_run.image, bear_run.rect)
         clock.tick(15)
         pygame.display.update()
