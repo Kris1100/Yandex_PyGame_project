@@ -14,10 +14,37 @@ v = 0.2
 pygame.display.update()
 running = True
 is_running = False
-evtype = 0
 x = 50
-evkey = 0
 all_sprites = pygame.sprite.Group()
+
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
+clock = pygame.time.Clock()
+
+
+def start_screen():
+    intro_text = ["НАЧАТЬ ИГРУ",
+                  "ПРАВИЛА ИГРЫ",
+                  "НАСТРОЙКИ",
+                  "УРОВЕНЬ",
+                  "ВЫХОД"]
+
+    fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 200
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
 
 
 def load_image(name):
@@ -108,7 +135,7 @@ while running:
                     pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
                     screen.blit(bear_jump.image, bear_jump.rect)
                     bear_jump.update()
-                    clock.tick(15)
+                    clock.tick(10)
                     pygame.display.update()
                 pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
                 screen.blit(bear.image, bear.rect)
@@ -124,36 +151,35 @@ while running:
                 pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
                 screen.blit(bear.image, bear.rect)
                 pygame.display.update()
-            evtype = event.type
-            evkey = event.key
-        if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
-            evtype = 0
-            evkey = 0
-            pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
-            screen.blit(bear.image, bear.rect)
-            pygame.display.update()
-            is_running = False
-        if evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
-            is_running = True
-
-    while evtype == pygame.KEYDOWN and evkey == pygame.K_RIGHT:
+    for i in range(22 - 10):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT):
-                evtype = 0
-                evkey = 0
-                pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
-                screen.blit(bear.image, bear.rect)
-                pygame.display.update()
-                is_running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    for i in range(51 - 42):
+                        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                        screen.blit(bear_jump.image, bear_jump.rect)
+                        bear_jump.update()
+                        clock.tick(10)
+                        pygame.display.update()
+                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(bear.image, bear.rect)
+                    pygame.display.update()
+                if event.key == pygame.K_q:
+                    for i in range(31 - 23):
+                        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                        screen.blit(bear_hit.image, bear_hit.rect)
+                        bear_hit.update()
+                        clock.tick(15)
+                        pygame.display.update()
+                    pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+                    screen.blit(bear.image, bear.rect)
+                    pygame.display.update()
 
-        if not is_running:
-            break
-        for i in range(22 - 10):
-            bear_run.update()
-            pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
-            screen.blit(bear_run.image, bear_run.rect)
-            clock.tick(15)
-            pygame.display.update()
+        bear_run.update()
+        pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
+        screen.blit(bear_run.image, bear_run.rect)
+        clock.tick(15)
+        pygame.display.update()
 pygame.quit()
