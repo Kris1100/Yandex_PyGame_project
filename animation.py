@@ -1,7 +1,8 @@
-import pygame
+import os
 import random
 import sys
-import os
+
+import pygame
 
 pygame.init()
 size = width, height = 1024, 401
@@ -30,8 +31,6 @@ monsters = []
 def start_screen():
     intro_text = ["НАЧАТЬ ИГРУ",
                   "ПРАВИЛА ИГРЫ",
-                  "НАСТРОЙКИ",
-                  "УРОВЕНЬ",
                   "ВЫХОД"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
@@ -112,8 +111,13 @@ class AnimatedSprite(pygame.sprite.Sprite):
 class Monster(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y, k1=-1, k2=-1, is_moving=False, v=5):
         self.frames = []
+        self.sheet = sheet
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
         self.hp = 50
+        self.x = x
+        self.columns = columns
+        self.rows = rows
+        self.y = y
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
@@ -123,6 +127,7 @@ class Monster(AnimatedSprite):
         self.v = v
         self.is_moving = is_moving
         self.k2 = k2
+
         if self.k1 != -1 and (self.k2 != -1):
             self.r = self.k2 - self.k1
         else:
@@ -144,6 +149,7 @@ class Monster(AnimatedSprite):
             self.image = self.frames[self.cur_frame + self.k1]
         if self.is_moving:
             self.rect[0] -= self.v
+            self.x -= self.v
 
 
 class Bear:
@@ -172,12 +178,15 @@ class Bear:
                         else:
                             pause = True
                     if not pause:
+
                         if event.key == pygame.K_UP:
                             meathead.jump()
                         if event.key == pygame.K_q:
                             meathead.hit()
 
             if not pause:
+                meathead.update()
+
                 self.bear_run.update()
                 screen.blit(fon, (0, 0, width, height))
                 if not pause:
@@ -200,6 +209,8 @@ class Bear:
                 i.update()
             for i in monsters:
                 screen.blit(i.image, i.rect)
+            meathead.update()
+
             self.bear_jump.update()
             clock.tick(10)
             pygame.display.update()
@@ -210,6 +221,8 @@ class Bear:
                 i.update()
             for i in monsters:
                 screen.blit(i.image, i.rect)
+            meathead.update()
+
             screen.blit(self.bear.image, self.bear.rect)
             pygame.display.update()
 
@@ -221,6 +234,8 @@ class Bear:
                 i.update()
             for i in monsters:
                 screen.blit(i.image, i.rect)
+            meathead.update()
+
             self.bear_hit.update()
             clock.tick(15)
             pygame.display.update()
@@ -233,6 +248,9 @@ class Bear:
                 screen.blit(i.image, i.rect)
             screen.blit(self.bear.image, self.bear.rect)
             pygame.display.update()
+
+    def update(self):
+        pass
 
 
 fon = load_image('fon.jpg')
@@ -284,6 +302,7 @@ while running:
                     meathead.hit()
 
     if not pause:
+        meathead.update()
         if what_time_i_need == 0:
             which_one()
         what_time_i_need -= 1
