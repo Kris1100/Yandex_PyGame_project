@@ -227,6 +227,8 @@ class Bear:
             pygame.display.update()
 
     def hit(self):
+        if not pause:
+            self.bear_hit.rect[0] += 10
         for i in range(31 - 23):
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_hit.image, self.bear_hit.rect)
@@ -248,9 +250,14 @@ class Bear:
                 screen.blit(i.image, i.rect)
             screen.blit(self.bear.image, self.bear.rect)
             pygame.display.update()
+        if not pause:
+            self.bear_hit.rect[0] -= 10
 
     def update(self):
-        pass
+        for i in monsters:
+            if self.bear_hit.rect[0] + self.bear_hit.rect[2] // 2 + 40 >= i.rect[0] and (
+                    self.bear_hit.rect[0] != self.bear.rect[0]) and (i.v != 20):
+                monsters.remove(i)
 
 
 fon = load_image('fon.jpg')
