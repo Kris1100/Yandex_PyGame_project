@@ -15,7 +15,7 @@ pygame.display.update()
 running = True
 is_running = False
 x = 50
-
+pause = False
 all_sprites = pygame.sprite.Group()
 
 
@@ -24,7 +24,7 @@ def terminate():
     sys.exit()
 
 
-clock = pygame.time.Clock()
+monsters = []
 
 
 def start_screen():
@@ -112,6 +112,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
 class Monster(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y, k1=-1, k2=-1, is_moving=False, v=5):
         self.frames = []
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
         self.hp = 50
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -146,13 +147,15 @@ class Monster(AnimatedSprite):
 
 
 class Bear:
+    global pause
+
     def __init__(self):
         self.hp = 100
+        self.pause = pause
         self.bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50)
         self.bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
         self.bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
         self.bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
-        print(self.bear)
 
     def run(self):
         global running
@@ -160,51 +163,77 @@ class Bear:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        meathead.jump()
-                    if event.key == pygame.K_q:
-                        meathead.hit()
+                    if event.key == pygame.K_SPACE:
 
-            self.bear_run.update()
-            screen.blit(fon, (0, 0, width, height))
+                        if self.pause:
+                            self.pause = False
+                        else:
+                            self.pause = True
+                    if not self.pause:
+                        if event.key == pygame.K_UP:
+                            meathead.jump()
+                        if event.key == pygame.K_q:
+                            meathead.hit()
 
-            screen.blit(self.bear_run.image, self.bear_run.rect)
-            clock.tick(15)
-            pygame.display.update()
+            if not self.pause:
+                self.bear_run.update()
+                screen.blit(fon, (0, 0, width, height))
+                if not self.pause:
+
+                    for i in monsters:
+                        i.update()
+                    for i in monsters:
+                        screen.blit(i.image, i.rect)
+                    screen.blit(self.bear_run.image, self.bear_run.rect)
+                    clock.tick(15)
+                    pygame.display.update()
 
     def jump(self):
         for i in range(51 - 42):
+            if i == (51 - 42) // 2:
+                for i in range(100000):
+                    pass
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_jump.image, self.bear_jump.rect)
+            for i in monsters:
+                i.update()
+            for i in monsters:
+                screen.blit(i.image, i.rect)
             self.bear_jump.update()
-            clock.tick(10)
+            clock.tick(6)
             pygame.display.update()
         screen.blit(fon, (0, 0, width, height))
-        screen.blit(self.bear.image, self.bear.rect)
-        pygame.display.update()
+        if not self.pause:
+
+            for i in monsters:
+                i.update()
+            for i in monsters:
+                screen.blit(i.image, i.rect)
+            screen.blit(self.bear.image, self.bear.rect)
+            pygame.display.update()
 
     def hit(self):
         for i in range(31 - 23):
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_hit.image, self.bear_hit.rect)
+            for i in monsters:
+                i.update()
+            for i in monsters:
+                screen.blit(i.image, i.rect)
             self.bear_hit.update()
             clock.tick(15)
             pygame.display.update()
         screen.blit(fon, (0, 0, width, height))
-        screen.blit(self.bear.image, self.bear.rect)
-        pygame.display.update()
+        if not self.pause:
 
-
-class Mon(Monster):
-    def update(self):
-        if bear.rect:
-            pass
-
-
-class Flying(Monster):
-    def update(self):
-        pass
+            for i in monsters:
+                i.update()
+            for i in monsters:
+                screen.blit(i.image, i.rect)
+            screen.blit(self.bear.image, self.bear.rect)
+            pygame.display.update()
 
 
 fon = load_image('fon.jpg')
@@ -215,10 +244,22 @@ camera = Camera()
 
 screen.blit(fon, (0, 0, width, height))
 
+what_time_i_need = 0
 
-mon = Monster(load_image("monster_1.png"), 8, 3, 1024, 50, is_moving=True)
 
-f_mon = Monster(load_image("flying_monster.png"), 4, 3, 1024, 200, is_moving=True, v=10)
+def which_one():
+    global what_time_i_need
+    z = random.choice(['mon', 'f_mon'])
+    if z == 'mon':
+        sprite = Monster(load_image("monster_1.png"), 8, 3, 1024, 80, is_moving=True)
+        what_time_i_need = 10
+        monsters.append(sprite)
+    else:
+        sprite = Monster(pygame.transform.scale(load_image("flying_monster.png"), (384, 288)), 4, 3, 1024, 230,
+                         is_moving=True, v=20)
+        what_time_i_need = 4
+        monsters.append(sprite)
+
 
 pygame.display.flip()
 
@@ -228,12 +269,27 @@ while running:
             running = False
 
         if event.type == pygame.KEYDOWN:
-            keys = pygame.key.get_pressed()
 
-            if event.key == pygame.K_UP:
-                meathead.jump()
+            if event.key == pygame.K_SPACE:
 
-            if event.key == pygame.K_q:
-                meathead.hit()
-    meathead.run()
+                if pause:
+                    pause = False
+                else:
+                    pause = True
+
+            if not pause:
+                if event.key == pygame.K_UP:
+                    meathead.jump()
+
+                if event.key == pygame.K_q:
+                    meathead.hit()
+
+    if not pause:
+        if what_time_i_need == 0:
+            which_one()
+        what_time_i_need -= 1
+
+        meathead.run()
+        pygame.display.flip()
+
 pygame.quit()
