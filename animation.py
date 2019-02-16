@@ -190,25 +190,29 @@ class Bear:
                 self.bear_run.update()
                 screen.blit(fon, (0, 0, width, height))
                 if not pause:
-
-                    for i in monsters:
-                        i.update()
-                    for i in monsters:
-                        screen.blit(i.image, i.rect)
+                    for k in monsters:
+                        k.update()
+                    for k in monsters:
+                        screen.blit(k.image, k.rect)
                     screen.blit(self.bear_run.image, self.bear_run.rect)
                     clock.tick(15)
                     pygame.display.update()
 
     def jump(self):
         for i in range(51 - 42):
-            for i in range(100000):
+            for j in range(100000):
                 pass
+            if i < (51 - 42) // 2:
+                self.bear_jump.rect[1] -= 20
+            else:
+                self.bear_jump.rect[1] += 20
+
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_jump.image, self.bear_jump.rect)
-            for i in monsters:
-                i.update()
-            for i in monsters:
-                screen.blit(i.image, i.rect)
+            for k in monsters:
+                k.update()
+            for k in monsters:
+                screen.blit(k.image, k.rect)
             meathead.update()
 
             self.bear_jump.update()
@@ -217,14 +221,15 @@ class Bear:
         screen.blit(fon, (0, 0, width, height))
         if not pause:
 
-            for i in monsters:
-                i.update()
-            for i in monsters:
-                screen.blit(i.image, i.rect)
+            for k in monsters:
+                k.update()
+            for k in monsters:
+                screen.blit(k.image, k.rect)
             meathead.update()
 
             screen.blit(self.bear.image, self.bear.rect)
             pygame.display.update()
+        self.bear_jump.rect[1] -= 20
 
     def hit(self):
         if not pause:
@@ -232,10 +237,10 @@ class Bear:
         for i in range(31 - 23):
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_hit.image, self.bear_hit.rect)
-            for i in monsters:
-                i.update()
-            for i in monsters:
-                screen.blit(i.image, i.rect)
+            for k in monsters:
+                k.update()
+            for k in monsters:
+                screen.blit(k.image, k.rect)
             meathead.update()
 
             self.bear_hit.update()
@@ -244,20 +249,38 @@ class Bear:
         screen.blit(fon, (0, 0, width, height))
         if not pause:
 
-            for i in monsters:
-                i.update()
-            for i in monsters:
-                screen.blit(i.image, i.rect)
+            for k in monsters:
+                k.update()
+            for k in monsters:
+                screen.blit(k.image, k.rect)
             screen.blit(self.bear.image, self.bear.rect)
             pygame.display.update()
         if not pause:
             self.bear_hit.rect[0] -= 10
 
     def update(self):
-        for i in monsters:
-            if self.bear_hit.rect[0] + self.bear_hit.rect[2] // 2 + 40 >= i.rect[0] and (
-                    self.bear_hit.rect[0] != self.bear.rect[0]) and (i.v != 20):
-                monsters.remove(i)
+        for k in monsters:
+            if self.bear_hit.rect[0] + self.bear_hit.rect[2] // 2 + 40 >= k.rect[0] and (
+                    self.bear_hit.rect[0] != self.bear.rect[0]) and (k.v != 20) and (
+                    self.bear_hit.rect[0] - k.rect[0] + k.rect[2]) <= 150:
+                monsters.remove(k)
+                fi = AnimatedSprite(load_image('fire.png'), 8, 4, k.rect[0], k.rect[1])
+                for i in range(32):
+                    screen.blit(fi.image, fi.rect)
+                    fi.update()
+                    pygame.display.flip()
+
+            if (self.bear_jump.rect[1] + self.bear_jump.rect[3] // 2 + 40 >= k.rect[1]) and (k.v == 20) and (
+                    self.bear_jump.rect[0] + self.bear_jump.rect[2] // 2 + 40 >= k.rect[0]) and (
+                    self.bear_jump.rect[0] <= k.rect[0] + k.rect[2]):
+                monsters.remove(k)
+                fi = AnimatedSprite(load_image('fire.png'), 8, 4, k.rect[0], k.rect[1])
+                for i in range(32):
+                    screen.blit(fi.image, fi.rect)
+                    fi.update()
+                    pygame.display.flip()
+            if self.bear.rect[0] + self.bear.rect[2] // 2  >= k.rect[0]:
+                pygame.quit()
 
 
 fon = load_image('fon.jpg')
@@ -276,12 +299,12 @@ def which_one():
     z = random.choice(['mon', 'f_mon'])
     if z == 'mon':
         sprite = Monster(load_image("monster_1.png"), 8, 3, 1024, 80, is_moving=True)
-        what_time_i_need = 15
+        what_time_i_need = 12
         monsters.append(sprite)
     else:
         sprite = Monster(pygame.transform.scale(load_image("flying_monster.png"), (384, 288)), 4, 3, 1024, 230,
                          is_moving=True, v=20)
-        what_time_i_need = 7
+        what_time_i_need = 6
         monsters.append(sprite)
 
 
