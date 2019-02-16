@@ -45,6 +45,16 @@ def load_image(name):
         raise SystemExit(message)
 
 
+def scor():
+    global score
+    pygame.font.init()
+    font = pygame.font.Font(None, 30)
+    text = font.render("Счёт: " + str(score), 1, pygame.Color('white'))
+    place = (0, 0)
+    screen.blit(text, place)
+    pygame.display.flip()
+
+
 def start_screen():
     with open("score.txt", encoding='utf-8') as f:
         read_data = f.read()
@@ -192,7 +202,10 @@ class Bear:
         global running
         global pause
         if start_of_game:
+            scor()
             for i in range(22 - 10):
+                scor()
+
                 if not start_of_game:
                     break
                 for event in pygame.event.get():
@@ -219,6 +232,8 @@ class Bear:
                     meathead.update()
 
                     self.bear_run.update()
+                    scor()
+
                     screen.blit(fon, (0, 0, width, height))
                     if not pause:
                         for k in monsters:
@@ -230,7 +245,10 @@ class Bear:
                         pygame.display.update()
 
     def jump(self):
+        scor()
         for i in range(51 - 42):
+            scor()
+
             for j in range(100000):
                 pass
             if i < (51 - 42) // 2:
@@ -248,6 +266,8 @@ class Bear:
 
             self.bear_jump.update()
             clock.tick(10)
+            scor()
+
             pygame.display.update()
         screen.blit(fon, (0, 0, width, height))
         if not pause:
@@ -259,13 +279,18 @@ class Bear:
             meathead.update()
 
             screen.blit(self.bear.image, self.bear.rect)
+            scor()
+
             pygame.display.update()
         self.bear_jump.rect[1] -= 20
 
     def hit(self):
         if not pause:
+            scor()
             self.bear_hit.rect[0] += 10
         for i in range(31 - 23):
+            scor()
+
             screen.blit(fon, (0, 0, width, height))
             screen.blit(self.bear_hit.image, self.bear_hit.rect)
             for k in monsters:
@@ -276,6 +301,8 @@ class Bear:
 
             self.bear_hit.update()
             clock.tick(15)
+            scor()
+
             pygame.display.update()
         screen.blit(fon, (0, 0, width, height))
         if not pause:
@@ -405,6 +432,7 @@ while running:
             meathead.run()
             pygame.display.flip()
     else:
+        scor()
         if not dead:
             start_screen()
         else:
