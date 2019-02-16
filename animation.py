@@ -5,7 +5,8 @@ import sys
 import pygame
 
 pygame.init()
-size = width, height = 1024, 401
+score = 0
+size = width, height = 1024, 576
 screen = pygame.display.set_mode(size)
 pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
 pygame.display.flip()
@@ -14,6 +15,7 @@ clock = pygame.time.Clock()
 v = 0.2
 pygame.display.update()
 running = True
+start_of_game = False
 is_running = False
 x = 50
 pause = False
@@ -28,10 +30,26 @@ def terminate():
 monsters = []
 
 
+def load_image(name):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname)
+        return image
+    except pygame.error as message:
+        print('Cannot load image:', name)
+        raise SystemExit(message)
+
+
 def start_screen():
-    intro_text = ["НАЧАТЬ ИГРУ",
+    with open("score.txt", encoding='utf-8') as f:
+        read_data = f.read()
+
+    intro_text = ["НАЖМИТЕ S, ЧТОБЫ НАЧАТЬ ИГРУ",
                   "ПРАВИЛА ИГРЫ",
-                  "ВЫХОД"]
+                  "Ваша задача убить всех монстров",
+                  "Чтобы бить - нажмите Q",
+                  "НАЖМИТЕ E, ЧТОБЫ ВЫЙТИ",
+                  "РЕКОРД:", read_data]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
     screen.blit(fon, (0, 0))
@@ -45,16 +63,6 @@ def start_screen():
         intro_rect.x = 10
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
-
-
-def load_image(name):
-    fullname = os.path.join('data', name)
-    try:
-        image = pygame.image.load(fullname)
-        return image
-    except pygame.error as message:
-        print('Cannot load image:', name)
-        raise SystemExit(message)
 
 
 class Camera:
@@ -108,6 +116,9 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.image = self.frames[self.cur_frame + self.k1]
 
 
+def end_of_game:
+
+
 class Monster(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y, k1=-1, k2=-1, is_moving=False, v=5):
         self.frames = []
@@ -157,10 +168,10 @@ class Bear:
 
     def __init__(self):
         self.hp = 100
-        self.bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50)
-        self.bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 10, 22)
-        self.bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 23, 31)
-        self.bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 50, 42, 51)
+        self.bear = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 150)
+        self.bear_run = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 150, 10, 22)
+        self.bear_hit = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 150, 23, 31)
+        self.bear_jump = AnimatedSprite(load_image("Bear.png"), 8, 8, 50, 150, 42, 51)
 
     def run(self):
         global running
@@ -171,6 +182,8 @@ class Bear:
                     running = False
 
                 if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_e:
+                        running = False
                     if event.key == pygame.K_SPACE:
 
                         if pause:
@@ -259,11 +272,15 @@ class Bear:
             self.bear_hit.rect[0] -= 10
 
     def update(self):
+        global running
+        global score
+        global start_of_game
         for k in monsters:
             if self.bear_hit.rect[0] + self.bear_hit.rect[2] // 2 + 40 >= k.rect[0] and (
                     self.bear_hit.rect[0] != self.bear.rect[0]) and (k.v != 20) and (
                     self.bear_hit.rect[0] - k.rect[0] + k.rect[2]) <= 150:
                 monsters.remove(k)
+                score += 10
                 fi = AnimatedSprite(load_image('fire.png'), 8, 4, k.rect[0], k.rect[1])
                 for i in range(32):
                     screen.blit(fi.image, fi.rect)
@@ -274,13 +291,17 @@ class Bear:
                     self.bear_jump.rect[0] + self.bear_jump.rect[2] // 2 + 40 >= k.rect[0]) and (
                     self.bear_jump.rect[0] <= k.rect[0] + k.rect[2]):
                 monsters.remove(k)
+                score += 10
                 fi = AnimatedSprite(load_image('fire.png'), 8, 4, k.rect[0], k.rect[1])
                 for i in range(32):
                     screen.blit(fi.image, fi.rect)
                     fi.update()
                     pygame.display.flip()
-            if self.bear.rect[0] + self.bear.rect[2] // 2  >= k.rect[0]:
-                pygame.quit()
+            if self.bear.rect[0] >= k.rect[0] and (k.v == 20):
+                start_of_game = True
+
+            if self.bear.rect[0] + self.bear.rect[2] // 2 >= k.rect[0] and (k.v != 20):
+                start_of_game = True
 
 
 fon = load_image('fon.jpg')
@@ -298,11 +319,11 @@ def which_one():
     global what_time_i_need
     z = random.choice(['mon', 'f_mon'])
     if z == 'mon':
-        sprite = Monster(load_image("monster_1.png"), 8, 3, 1024, 80, is_moving=True)
+        sprite = Monster(load_image("monster_1.png"), 8, 3, 1024, 180, is_moving=True)
         what_time_i_need = 12
         monsters.append(sprite)
     else:
-        sprite = Monster(pygame.transform.scale(load_image("flying_monster.png"), (384, 288)), 4, 3, 1024, 230,
+        sprite = Monster(pygame.transform.scale(load_image("flying_monster.png"), (384, 288)), 4, 3, 1024, 330,
                          is_moving=True, v=20)
         what_time_i_need = 6
         monsters.append(sprite)
@@ -316,28 +337,42 @@ while running:
             running = False
 
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                start_of_game = True
+            if event.key == pygame.K_e:
+                running = False
 
-            if event.key == pygame.K_SPACE:
+            if start_of_game:
+                if event.key == pygame.K_SPACE:
 
-                if pause:
-                    pause = False
-                else:
-                    pause = True
+                    if pause:
+                        pause = False
+                    else:
+                        pause = True
 
-            if not pause:
-                if event.key == pygame.K_UP:
-                    meathead.jump()
+                if not pause:
+                    if event.key == pygame.K_UP:
+                        meathead.jump()
 
-                if event.key == pygame.K_q:
-                    meathead.hit()
+                    if event.key == pygame.K_q:
+                        meathead.hit()
+    if start_of_game:
+        if not pause:
+            meathead.update()
+            if what_time_i_need == 0:
+                which_one()
+            what_time_i_need -= 1
 
-    if not pause:
-        meathead.update()
-        if what_time_i_need == 0:
-            which_one()
-        what_time_i_need -= 1
-
-        meathead.run()
+            meathead.run()
+            pygame.display.flip()
+    else:
+        start_screen()
         pygame.display.flip()
+with open("score.txt", encoding='utf-8') as f:
+    read_data = f.read()
 
+if score > int(read_data):
+    d = open('score.txt', 'w')
+    d.write(str(score))
+    d.close()
 pygame.quit()
