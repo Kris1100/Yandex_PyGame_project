@@ -5,6 +5,8 @@ import sys
 import pygame
 
 pygame.init()
+dead = False
+
 score = 0
 size = width, height = 1024, 576
 screen = pygame.display.set_mode(size)
@@ -116,7 +118,17 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.image = self.frames[self.cur_frame + self.k1]
 
 
-def end_of_game:
+def end_of_game():
+    sprite = pygame.sprite.Sprite()
+    sprite.image = load_image('gameover.png')
+    sprite.image = pygame.transform.scale(sprite.image, (1024, 576))
+    sprite.rect = sprite.image.get_rect()
+
+    v = 0.2
+    sprite.rect.x = 0
+    sprite.rect.y = 0
+    screen.blit(sprite.image, sprite.rect)
+    pygame.display.update()
 
 
 class Monster(AnimatedSprite):
@@ -176,40 +188,43 @@ class Bear:
     def run(self):
         global running
         global pause
-        for i in range(22 - 10):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_e:
+        if start_of_game:
+            for i in range(22 - 10):
+                if not start_of_game:
+                    break
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
                         running = False
-                    if event.key == pygame.K_SPACE:
 
-                        if pause:
-                            pause = False
-                        else:
-                            pause = True
-                    if not pause:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_e:
+                            running = False
+                        if event.key == pygame.K_SPACE:
 
-                        if event.key == pygame.K_UP:
-                            meathead.jump()
-                        if event.key == pygame.K_q:
-                            meathead.hit()
+                            if pause:
+                                pause = False
+                            else:
+                                pause = True
+                        if not pause:
 
-            if not pause:
-                meathead.update()
+                            if event.key == pygame.K_UP:
+                                meathead.jump()
+                            if event.key == pygame.K_q:
+                                meathead.hit()
 
-                self.bear_run.update()
-                screen.blit(fon, (0, 0, width, height))
                 if not pause:
-                    for k in monsters:
-                        k.update()
-                    for k in monsters:
-                        screen.blit(k.image, k.rect)
-                    screen.blit(self.bear_run.image, self.bear_run.rect)
-                    clock.tick(15)
-                    pygame.display.update()
+                    meathead.update()
+
+                    self.bear_run.update()
+                    screen.blit(fon, (0, 0, width, height))
+                    if not pause:
+                        for k in monsters:
+                            k.update()
+                        for k in monsters:
+                            screen.blit(k.image, k.rect)
+                        screen.blit(self.bear_run.image, self.bear_run.rect)
+                        clock.tick(15)
+                        pygame.display.update()
 
     def jump(self):
         for i in range(51 - 42):
@@ -274,6 +289,7 @@ class Bear:
     def update(self):
         global running
         global score
+        global dead
         global start_of_game
         for k in monsters:
             if self.bear_hit.rect[0] + self.bear_hit.rect[2] // 2 + 40 >= k.rect[0] and (
@@ -298,10 +314,29 @@ class Bear:
                     fi.update()
                     pygame.display.flip()
             if self.bear.rect[0] >= k.rect[0] and (k.v == 20):
-                start_of_game = True
+                start_of_game = False
+                end_of_game()
+                dead = True
+                with open("score.txt", encoding='utf-8') as f:
+                    read_data = f.read()
+
+                if score > int(read_data):
+                    d = open('score.txt', 'w')
+                    d.write(str(score))
+                    d.close()
 
             if self.bear.rect[0] + self.bear.rect[2] // 2 >= k.rect[0] and (k.v != 20):
-                start_of_game = True
+                start_of_game = False
+                end_of_game()
+                dead = True
+
+                with open("score.txt", encoding='utf-8') as f:
+                    read_data = f.read()
+
+                if score > int(read_data):
+                    d = open('score.txt', 'w')
+                    d.write(str(score))
+                    d.close()
 
 
 fon = load_image('fon.jpg')
@@ -339,6 +374,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
                 start_of_game = True
+                monsters = []
             if event.key == pygame.K_e:
                 running = False
 
@@ -366,7 +402,10 @@ while running:
             meathead.run()
             pygame.display.flip()
     else:
-        start_screen()
+        if not dead:
+            start_screen()
+        else:
+            end_of_game()
         pygame.display.flip()
 with open("score.txt", encoding='utf-8') as f:
     read_data = f.read()
