@@ -7,7 +7,10 @@ import pygame
 pygame.init()
 dead = False
 
+pygame.mixer.init()
 score = 0
+pygame.mixer.music.load('m.mp3')
+pygame.mixer.music.play()
 size = width, height = 1024, 576
 screen = pygame.display.set_mode(size)
 pygame.draw.rect(screen, pygame.Color('white'), (0, 0, width, height), 0)
