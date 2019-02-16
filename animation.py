@@ -347,6 +347,8 @@ class Bear:
                 start_of_game = False
                 end_of_game()
                 dead = True
+                score = 0
+
                 with open("score.txt", encoding='utf-8') as f:
                     read_data = f.read()
 
@@ -359,6 +361,7 @@ class Bear:
                 start_of_game = False
                 end_of_game()
                 dead = True
+                score = 0
 
                 with open("score.txt", encoding='utf-8') as f:
                     read_data = f.read()
